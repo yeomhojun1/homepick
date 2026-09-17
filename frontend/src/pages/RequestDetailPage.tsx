@@ -3,6 +3,11 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getServiceRequest, cancelServiceRequest } from '@/api/service-requests.api';
 import { getQuotes, createQuote, acceptQuote, rejectQuote } from '@/api/quotes.api';
+import { getErrorMessage } from '@/api/client';
+import {
+  SERVICE_REQUEST_STATUS_COLORS,
+  SERVICE_REQUEST_STATUS_LABELS,
+} from '@/constants/status';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function RequestDetailPage(): JSX.Element {
@@ -66,13 +71,26 @@ export default function RequestDetailPage(): JSX.Element {
   const isOwner = user?.id === request.customerId;
   const isWorker = user?.role === 'worker';
   const canSubmitQuote = isWorker && request.status === 'open';
+  const actionError =
+    cancelMutation.error ??
+    quoteMutation.error ??
+    acceptMutation.error ??
+    rejectMutation.error;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {getErrorMessage(actionError) ??
+            '요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'}
+        </div>
+      )}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
           <h1 className="text-2xl font-bold">{request.title}</h1>
-          <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">{request.status}</span>
+          <span className={`text-sm px-2 py-1 rounded ${SERVICE_REQUEST_STATUS_COLORS[request.status]}`}>
+            {SERVICE_REQUEST_STATUS_LABELS[request.status]}
+          </span>
         </div>
         {request.category && (
           <p className="text-sm text-blue-600 mb-2">{request.category.name}</p>

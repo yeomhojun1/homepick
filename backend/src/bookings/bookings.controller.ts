@@ -25,8 +25,11 @@ export class BookingsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
-    return this.bookingsService.findOne(id);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<unknown> {
+    return this.bookingsService.findOne(id, user.sub);
   }
 
   @Patch(':id/complete')

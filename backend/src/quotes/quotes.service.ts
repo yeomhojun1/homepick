@@ -37,6 +37,14 @@ export class QuotesService {
     if (serviceRequest.status === ServiceRequestStatus.CANCELLED) {
       throw new BadRequestException('취소된 의뢰에는 견적을 제출할 수 없습니다.');
     }
+    if (
+      serviceRequest.status === ServiceRequestStatus.BOOKED ||
+      serviceRequest.status === ServiceRequestStatus.COMPLETED
+    ) {
+      throw new BadRequestException(
+        '이미 예약이 확정된 의뢰에는 견적을 제출할 수 없습니다.',
+      );
+    }
 
     const existing = await this.quoteRepository.findOne({
       where: { serviceRequestId: requestId, workerId },
@@ -107,6 +115,9 @@ export class QuotesService {
     }
     if (quote.serviceRequest.customerId !== userId) {
       throw new ForbiddenException('거절 권한이 없습니다.');
+    }
+    if (quote.status !== QuoteStatus.PENDING) {
+      throw new BadRequestException('이미 처리된 견적입니다.');
     }
     quote.status = QuoteStatus.REJECTED;
     return this.quoteRepository.save(quote);

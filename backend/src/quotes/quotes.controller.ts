@@ -12,16 +12,21 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { QuotesService } from './quotes.service';
 import { CreateQuoteDto } from './dtos/create-quote.dto';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
+import { RolesGuard } from '../common/roles.guard';
+import { Roles } from '../common/roles.decorator';
+import { UserRole } from '../auth/entities/user.entity';
 import { CurrentUser } from '../common/current-user.decorator';
 import type { JwtPayload } from '../common/current-user.decorator';
 
 @ApiTags('quotes')
-@UseGuards(JwtAuthGuard)
+@Controller()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 
   @Post('api/v1/service-requests/:requestId/quotes')
+  @Roles(UserRole.WORKER)
   async create(
     @Param('requestId', ParseIntPipe) requestId: number,
     @CurrentUser() user: JwtPayload,

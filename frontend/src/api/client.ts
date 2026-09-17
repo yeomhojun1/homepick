@@ -16,13 +16,29 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+const AUTH_ATTEMPT_PATHS = ['/api/v1/auth/login', '/api/v1/auth/register'];
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      localStorage.removeItem('accessToken');
-      window.location.href = '/login';
+      const url = error.config?.url ?? '';
+      const isAuthAttempt = AUTH_ATTEMPT_PATHS.some((path) => url.includes(path));
+      if (!isAuthAttempt) {
+        localStorage.removeItem('accessToken');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   },
 );
+
+export function getErrorStatus(error: unknown): number | undefined {
+  return axios.isAxiosError(error) ? error.response?.status : undefined;
+}
+
+export function getErrorMessage(error: unknown): string | undefined {
+  if (!axios.isAxiosError(error)) return undefined;
+  const data = error.response?.data as { message?: unknown } | undefined;
+  return typeof data?.message === 'string' ? data.message : undefined;
+}

@@ -1,5 +1,5 @@
 export default (): Record<string, unknown> => ({
-  port: parseInt(process.env.PORT ?? '3000', 10),
+  port: parseInt(process.env.PORT ?? '4001', 10),
   nodeEnv: process.env.NODE_ENV ?? 'development',
   database: {
     url: process.env.DATABASE_URL,

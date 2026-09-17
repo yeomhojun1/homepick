@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/api/auth.api';
+import { getErrorMessage, getErrorStatus } from '@/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LoginPage(): JSX.Element {
@@ -19,8 +20,17 @@ export default function LoginPage(): JSX.Element {
       const result = await login({ email, password });
       setAuth(result.user, result.accessToken);
       navigate('/');
-    } catch {
-      setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+    } catch (err) {
+      const status = getErrorStatus(err);
+      if (status === undefined) {
+        setError('서버에 연결할 수 없습니다. 백엔드가 실행 중인지 확인해 주세요.');
+      } else if (status === 401) {
+        setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else {
+        setError(
+          getErrorMessage(err) ?? '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+        );
+      }
     } finally {
       setIsLoading(false);
     }

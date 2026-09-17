@@ -1,15 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { getMyServiceRequests } from '@/api/service-requests.api';
-import type { ServiceRequest } from '@/types';
-
-const STATUS_LABELS: Record<ServiceRequest['status'], string> = {
-  open: '모집중',
-  quoted: '견적접수',
-  booked: '예약완료',
-  completed: '완료',
-  cancelled: '취소',
-};
+import { SERVICE_REQUEST_STATUS_LABELS } from '@/constants/status';
 
 export default function MyRequestsPage(): JSX.Element {
   const { data: requests = [], isLoading } = useQuery({
@@ -49,7 +41,7 @@ export default function MyRequestsPage(): JSX.Element {
                   </p>
                 </div>
                 <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                  {STATUS_LABELS[req.status]}
+                  {SERVICE_REQUEST_STATUS_LABELS[req.status]}
                 </span>
               </div>
             </Link>

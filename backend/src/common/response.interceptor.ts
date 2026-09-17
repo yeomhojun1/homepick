@@ -21,7 +21,8 @@ export class ResponseInterceptor<T>
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<ApiResponse<T>> {
-    const statusCode = context.switchToHttp().getResponse().statusCode as number;
+    const statusCode = context.switchToHttp().getResponse<{ statusCode: number }>()
+      .statusCode;
     return next.handle().pipe(
       map((data: T) => ({
         data,

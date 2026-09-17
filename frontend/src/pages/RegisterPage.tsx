@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '@/api/auth.api';
+import { getErrorMessage, getErrorStatus } from '@/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function RegisterPage(): JSX.Element {
@@ -34,8 +35,19 @@ export default function RegisterPage(): JSX.Element {
       });
       setAuth(result.user, result.accessToken);
       navigate('/');
-    } catch {
-      setError('회원가입에 실패했습니다. 이미 사용 중인 이메일일 수 있습니다.');
+    } catch (err) {
+      const status = getErrorStatus(err);
+      if (status === undefined) {
+        setError('서버에 연결할 수 없습니다. 백엔드가 실행 중인지 확인해 주세요.');
+      } else if (status === 409) {
+        setError('이미 사용 중인 이메일입니다.');
+      } else if (status === 400) {
+        setError(getErrorMessage(err) ?? '입력값을 다시 확인해 주세요.');
+      } else {
+        setError(
+          getErrorMessage(err) ?? '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+        );
+      }
     } finally {
       setIsLoading(false);
     }

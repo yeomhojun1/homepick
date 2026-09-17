@@ -83,8 +83,8 @@ repair-app/
 ## 시작하기
 
 ### 요구사항
-- Docker & Docker Compose
-- Node.js 18+
+- Node.js **20.19+** (NestJS 11 / TypeORM / Fastify 5 가 요구. Node 18 에서는 부팅 불가)
+- PostgreSQL 16 (로컬 설치 또는 Docker & Docker Compose)
 
 ### 환경변수 설정
 
@@ -93,37 +93,51 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
-`backend/.env`
+`backend/.env` (로컬 PostgreSQL 기준. `<db-user>`/`<db-password>` 는 실제 값으로 교체)
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5433/homepick
-JWT_SECRET=homepick-secret-key-change-in-production
+PORT=4001
+DATABASE_URL=postgresql://<db-user>:<db-password>@localhost:5432/homepick
+JWT_SECRET=<change-me-to-a-long-random-string>
 ALLOWED_ORIGINS=http://localhost:3001
-PORT=3000
+NODE_ENV=development
 ```
 
 `frontend/.env`
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=http://localhost:4001
 ```
 
 ### 실행
 
 ```bash
-# 전체 실행 (DB + 백엔드 + 프론트엔드)
-docker compose up --build
+# 1) DB 준비 — 로컬 PostgreSQL 에 homepick 데이터베이스를 만들거나 Docker 사용
+docker compose up postgres -d    # (Docker 를 쓸 경우, 포트는 5433)
 
-# DB만 Docker로 띄우고 로컬 개발
-docker compose up postgres -d
-cd backend && npm run start:dev   # :3000
-cd frontend && npm run dev        # :3001
+# 2) 백엔드 의존성 설치
+cd backend && npm install
+
+# 3) 카테고리 시드 — 최초 1회 필수.
+#    테이블 생성(synchronize) 과 기본 카테고리 8종 INSERT 를 함께 수행한다.
+#    카테고리가 없으면 프론트 의뢰 등록 폼의 카테고리 select 가 비어 의뢰 등록 자체가 불가능하다.
+#    이름 기준으로 중복을 건너뛰므로 여러 번 실행해도 안전하다.
+npm run seed
+
+# 4) 백엔드 실행
+npm run start:dev                # :4001
+
+# 5) 프론트엔드 실행 (다른 터미널)
+cd frontend && npm install && npm run dev   # :3001
 ```
+
+> Docker 로 전체를 띄우려면 `docker compose up --build` 를 쓴다.
+> 이 경우 백엔드는 컨테이너 안에서 3000 포트를 쓰므로 `docker-compose.yml` 의 포트 설정을 따른다.
 
 | 서비스 | URL |
 |--------|-----|
 | 프론트엔드 | http://localhost:3001 |
-| 백엔드 API | http://localhost:3000 |
-| Swagger 문서 | http://localhost:3000/api/docs |
-| PostgreSQL | localhost:5433 |
+| 백엔드 API | http://localhost:4001 |
+| Swagger 문서 | http://localhost:4001/api/docs |
+| PostgreSQL | localhost:5432 (Docker 사용 시 5433) |
 
 ---
 

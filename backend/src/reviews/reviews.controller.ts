@@ -15,6 +15,7 @@ import { CurrentUser } from '../common/current-user.decorator';
 import type { JwtPayload } from '../common/current-user.decorator';
 
 @ApiTags('reviews')
+@Controller()
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ReviewsController {

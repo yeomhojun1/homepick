@@ -25,7 +25,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<{ accessToken: string; user: Omit<User, 'passwordHash'> }> {
+  async register(dto: RegisterDto): Promise<{ accessToken: string; user: User }> {
     const existing = await this.userRepository.findOne({ where: { email: dto.email } });
     if (existing) {
       throw new ConflictException('이미 사용 중인 이메일입니다.');
@@ -47,10 +47,10 @@ export class AuthService {
     }
 
     const accessToken = this.generateToken(saved);
-    return { accessToken, user: this.sanitizeUser(saved) };
+    return { accessToken, user: saved };
   }
 
-  async login(dto: LoginDto): Promise<{ accessToken: string; user: Omit<User, 'passwordHash'> }> {
+  async login(dto: LoginDto): Promise<{ accessToken: string; user: User }> {
     const user = await this.userRepository.findOne({ where: { email: dto.email } });
     if (!user) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다.');
@@ -62,10 +62,10 @@ export class AuthService {
     }
 
     const accessToken = this.generateToken(user);
-    return { accessToken, user: this.sanitizeUser(user) };
+    return { accessToken, user };
   }
 
-  async getMe(userId: number): Promise<Omit<User, 'passwordHash'>> {
+  async getMe(userId: number): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: { workerProfile: true },
@@ -73,10 +73,10 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
     }
-    return this.sanitizeUser(user);
+    return user;
   }
 
-  async updateMe(userId: number, dto: UpdateProfileDto): Promise<Omit<User, 'passwordHash'>> {
+  async updateMe(userId: number, dto: UpdateProfileDto): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
@@ -87,7 +87,7 @@ export class AuthService {
     if (dto.fcmToken !== undefined) user.fcmToken = dto.fcmToken;
 
     const saved = await this.userRepository.save(user);
-    return this.sanitizeUser(saved);
+    return saved;
   }
 
   private generateToken(user: User): string {
@@ -96,10 +96,5 @@ export class AuthService {
       email: user.email,
       role: user.role,
     });
-  }
-
-  private sanitizeUser(user: User): Omit<User, 'passwordHash'> {
-    const { passwordHash: _pw, ...rest } = user;
-    return rest as Omit<User, 'passwordHash'>;
   }
 }

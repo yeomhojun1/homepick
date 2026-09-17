@@ -12,17 +12,21 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ServiceRequestsService } from './service-requests.service';
 import { CreateServiceRequestDto } from './dtos/create-service-request.dto';
 import { JwtAuthGuard } from '../common/jwt-auth.guard';
+import { RolesGuard } from '../common/roles.guard';
+import { Roles } from '../common/roles.decorator';
+import { UserRole } from '../auth/entities/user.entity';
 import { CurrentUser } from '../common/current-user.decorator';
 import type { JwtPayload } from '../common/current-user.decorator';
 
 @ApiTags('service-requests')
 @Controller('api/v1/service-requests')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class ServiceRequestsController {
   constructor(private readonly serviceRequestsService: ServiceRequestsService) {}
 
   @Post()
+  @Roles(UserRole.CUSTOMER)
   async create(
     @CurrentUser() user: JwtPayload,
     @Body() dto: CreateServiceRequestDto,
