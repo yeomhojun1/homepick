@@ -1,5 +1,7 @@
 # Homepick (홈픽) — 소액 집수리 중개
 
+> 🔗 **Live Demo**: https://homepick-seven.vercel.app
+
 수도꼭지 교체나 방문 손잡이 수리처럼 작은 집수리를 올리면, 여러 수리 기사가 견적을 내고 고객이 골라서 맡기는 웹 서비스입니다.
 
 **바로 써 보기: https://yeomhojun1.github.io/homepick/**
