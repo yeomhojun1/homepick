@@ -36,6 +36,7 @@ export default function HomePage(): JSX.Element {
     mutationFn: createServiceRequest,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['service-requests'] });
+      void queryClient.invalidateQueries({ queryKey: ['my-service-requests'] });
       setShowForm(false);
       setForm({ categoryId: '', title: '', description: '', address: '', preferredDate: '' });
     },

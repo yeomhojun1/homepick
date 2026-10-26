@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { updateMe } from '@/api/auth.api';
+import { getUserReviews } from '@/api/reviews.api';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function ProfilePage(): JSX.Element {
@@ -12,6 +13,12 @@ export default function ProfilePage(): JSX.Element {
     phone: user?.phone ?? '',
   });
   const [saved, setSaved] = useState(false);
+
+  const { data: receivedReviews = [] } = useQuery({
+    queryKey: ['reviews', user?.id],
+    queryFn: () => getUserReviews(user?.id ?? 0),
+    enabled: !!user,
+  });
 
   const updateMutation = useMutation({
     mutationFn: () => updateMe({ name: form.name, phone: form.phone }),
@@ -85,6 +92,27 @@ export default function ProfilePage(): JSX.Element {
         >
           로그아웃
         </button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        <h2 className="text-lg font-semibold mb-3">받은 리뷰 ({receivedReviews.length})</h2>
+        {receivedReviews.length === 0 ? (
+          <p className="text-sm text-gray-500">아직 받은 리뷰가 없습니다.</p>
+        ) : (
+          <ul className="space-y-3">
+            {receivedReviews.map((review) => (
+              <li key={review.id} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                <p className="text-yellow-500 text-sm">
+                  {'★'.repeat(review.rating) + '☆'.repeat(5 - review.rating)}
+                </p>
+                {review.comment && <p className="text-sm text-gray-700 mt-1">{review.comment}</p>}
+                <p className="text-xs text-gray-400 mt-1">
+                  {review.reviewer?.name ?? '익명'} · {new Date(review.createdAt).toLocaleDateString()}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

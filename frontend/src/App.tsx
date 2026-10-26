@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { isDemo } from '@/config/env';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getMe } from '@/api/auth.api';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -17,6 +18,9 @@ const queryClient = new QueryClient({
     queries: { retry: 1, staleTime: 30_000 },
   },
 });
+
+// GitHub Pages 같은 정적 호스팅은 하위 경로 새로고침 시 404 를 내므로 데모 빌드는 해시 라우팅을 쓴다.
+const Router = isDemo ? HashRouter : BrowserRouter;
 
 function PrivateRoute({ children }: { children: JSX.Element }): JSX.Element {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -53,7 +57,7 @@ export default function App(): JSX.Element {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <Router>
         <Layout>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
@@ -101,7 +105,7 @@ export default function App(): JSX.Element {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Layout>
-      </BrowserRouter>
+      </Router>
     </QueryClientProvider>
   );
 }

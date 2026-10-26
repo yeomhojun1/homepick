@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyBookings, completeBooking } from '@/api/bookings.api';
 import { useAuthStore } from '@/store/useAuthStore';
+import ReviewSection from '@/components/ReviewSection';
 import type { Booking } from '@/types';
 
 const STATUS_LABELS: Record<Booking['status'], string> = {
@@ -64,6 +65,9 @@ export default function MyBookingsPage(): JSX.Element {
                 >
                   완료 처리
                 </button>
+              )}
+              {user && booking.status === 'completed' && (
+                <ReviewSection booking={booking} me={user} />
               )}
             </div>
           ))}

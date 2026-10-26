@@ -34,6 +34,8 @@ export default function RequestDetailPage(): JSX.Element {
     mutationFn: () => cancelServiceRequest(requestId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['service-request', requestId] });
+      void queryClient.invalidateQueries({ queryKey: ['service-requests'] });
+      void queryClient.invalidateQueries({ queryKey: ['my-service-requests'] });
     },
   });
 
@@ -55,6 +57,9 @@ export default function RequestDetailPage(): JSX.Element {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['service-request', requestId] });
       void queryClient.invalidateQueries({ queryKey: ['quotes', requestId] });
+      void queryClient.invalidateQueries({ queryKey: ['service-requests'] });
+      void queryClient.invalidateQueries({ queryKey: ['my-service-requests'] });
+      void queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
     },
   });
 

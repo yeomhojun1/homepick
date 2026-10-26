@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
+import { isDemo } from '@/config/env';
+import DemoBanner from '@/demo/DemoBanner';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,6 +18,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {isDemo && <DemoBanner />}
       <nav className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="text-xl font-bold text-blue-600">Homepick</Link>

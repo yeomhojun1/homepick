@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { env } from '@/config/env';
+import { env, isDemo } from '@/config/env';
+import { demoAdapter } from '@/demo/mockAdapter';
 
 export const apiClient = axios.create({
   baseURL: env.apiUrl,
@@ -7,6 +8,10 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+if (isDemo) {
+  apiClient.defaults.adapter = demoAdapter;
+}
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
@@ -26,7 +31,7 @@ apiClient.interceptors.response.use(
       const isAuthAttempt = AUTH_ATTEMPT_PATHS.some((path) => url.includes(path));
       if (!isAuthAttempt) {
         localStorage.removeItem('accessToken');
-        window.location.href = '/login';
+        window.location.href = isDemo ? `${import.meta.env.BASE_URL}#/login` : '/login';
       }
     }
     return Promise.reject(error);

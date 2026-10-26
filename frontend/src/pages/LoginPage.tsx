@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/api/auth.api';
 import { getErrorMessage, getErrorStatus } from '@/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { isDemo } from '@/config/env';
+import DemoLoginButtons from '@/demo/DemoLoginButtons';
 
 export default function LoginPage(): JSX.Element {
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ export default function LoginPage(): JSX.Element {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">Homepick</h1>
         <h2 className="text-xl font-semibold mb-4">로그인</h2>
+        {isDemo && <DemoLoginButtons />}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
             {error}
